@@ -57,14 +57,14 @@ main(int argc, char *argv[])
           err(1, "%s: close (1st time)", file2);
      }
 
-     printf("Melding...\n");
+     printf("Melding!!\n");
      int bytes = meld(file1, file2, mergefile);
 
      if (bytes<0) {
           err(1, "%s: merging", mergefile);
      }
 
-     printf("Reading merged file...\n");
+     printf("Reading merged file\n");
 	fd = open(mergefile, O_RDONLY);
 	if (fd<0) {
 		err(1, "%s: open for read", mergefile);
