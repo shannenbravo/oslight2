@@ -23,7 +23,7 @@ syscall(struct trapframe *tf)
 
 	callno = tf->tf_v0;
 	retval = 0;
-
+	//stsrt of the switch statement 
 	switch (callno) {
 	    case SYS_reboot:
 		err = sys_reboot(tf->tf_a0);
@@ -33,13 +33,13 @@ syscall(struct trapframe *tf)
 		err = sys___time((userptr_t)tf->tf_a0,
 				 (userptr_t)tf->tf_a1);
 		break;
-
+	    //system exit 
             case SYS__exit:
                 sys__exit(tf->tf_a0);
                 panic("Returning from exit\n");
                 break;
 
-            /* Sample cases: open and read */
+          //system open 
             case SYS_open:
                 err = sys_open(
                         (userptr_t)tf->tf_a0,
@@ -47,7 +47,7 @@ syscall(struct trapframe *tf)
                         tf->tf_a2,
                         &retval);
                 break;
-
+	//system read 
             case SYS_read:
                 err = sys_read(
                         tf->tf_a0,
@@ -55,7 +55,7 @@ syscall(struct trapframe *tf)
                         tf->tf_a2,
                         &retval);
                 break;
-
+	//system write 
              case SYS_write:
                 err = sys_write(
                         tf->tf_a0,
@@ -63,13 +63,13 @@ syscall(struct trapframe *tf)
                         tf->tf_a2,
                         &retval);
                 break;
-
+	//system close 
              case SYS_close:
                 err = sys_close(
                         tf->tf_a0,
                         &retval);
                 break;
-
+	// system meld
              case SYS_meld:
                 err = sys_meld(
                         (userptr_t)tf->tf_a0,
@@ -86,11 +86,7 @@ syscall(struct trapframe *tf)
 
 
 	if (err) {
-		/*
-		 * Return the error code. This gets converted at
-		 * userlevel to a return value of -1 and the error
-		 * code in errno.
-		 */
+		
 		tf->tf_v0 = err;
 		tf->tf_a3 = 1;      /* signal an error */
 	}
@@ -100,10 +96,7 @@ syscall(struct trapframe *tf)
 		tf->tf_a3 = 0;      /* signal no error */
 	}
 
-	/*
-	 * Now, advance the program counter, to avoid restarting
-	 * the syscall over and over again.
-	 */
+	
 
 	tf->tf_epc += 4;
 
