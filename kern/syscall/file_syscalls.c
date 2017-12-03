@@ -16,10 +16,7 @@
 #include <filetable.h>
 #include <syscall.h>
 
-/*
- * open() - get the path with copyinstr, then use openfile_open and
- * filetable_place to do the real work.
- */
+
 int
 sys_open(const_userptr_t upath, int flags, mode_t mode, int *retval)
 {
@@ -39,7 +36,7 @@ sys_open(const_userptr_t upath, int flags, mode_t mode, int *retval)
      result = copyinstr(upath, kpath, strlen(((char *)upath)) + 1, NULL);
      if(result) { return result; }
 
-     /* open a file (args must be kernel pointers; destroys filename) */
+   
      result = openfile_open(kpath, flags, mode, &file);
      kfree(kpath);
      if(result) { return result; }
@@ -224,13 +221,13 @@ sys_meld(const_userptr_t upath1, const_userptr_t upath2, const_userptr_t upathme
      kbuf1 = kmalloc(sizeof(char) * 4); // four bytes
      kbuf2 = kmalloc(sizeof(char) * 4); // four bytes
 
-     // loop assistants
+ 
      int file1LastOffset = 0, file2LastOffset = 0;
      int loopcnt = 0, file1Read = -1, file2Read = -1;
 
      while(file1Read != 0 && file2Read != 0)
      {
-         // read from file 1
+      
          lock_acquire(file1->of_offsetlock);
 
          uio_kinit(&iov, &read1uio, kbuf1, 4, file1->of_offset, UIO_READ);
@@ -241,7 +238,7 @@ sys_meld(const_userptr_t upath1, const_userptr_t upath2, const_userptr_t upathme
 
          lock_release(file1->of_offsetlock);
 
-         // Read from file 2
+       
          lock_acquire(file2->of_offsetlock);
 
          uio_kinit(&iov, &read2uio, kbuf2, 4, file2->of_offset, UIO_READ);
@@ -276,14 +273,14 @@ sys_meld(const_userptr_t upath1, const_userptr_t upath2, const_userptr_t upathme
 
          if(file1Read != 0 || file2Read != 0)
          {
-              // write the bytes to the new file
+              
               lock_acquire(filemerge->of_offsetlock);
               uio_kinit(&iov, &writeuio, kbuf1, 4, filemerge->of_offset, UIO_WRITE);
               result = VOP_WRITE(filemerge->of_vnode, &writeuio);
               filemerge->of_offset = writeuio.uio_offset;
               lock_release(filemerge->of_offsetlock);
 
-              // write to the new file
+       
               lock_acquire(filemerge->of_offsetlock);
               uio_kinit(&iov, &writeuio, kbuf2, 4, filemerge->of_offset, UIO_WRITE);
               result = VOP_WRITE(filemerge->of_vnode, &writeuio);
@@ -292,7 +289,7 @@ sys_meld(const_userptr_t upath1, const_userptr_t upath2, const_userptr_t upathme
          }
      }
 
-     // number of bytes written
+ 
      *retval = filemerge->of_offset;
 
      openfile_decref(file1);
